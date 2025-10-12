@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f8cb6a78-2e76-42eb-99a2-85b6b9fb28f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{694eafb7-e37f-4281-a06e-e3b7938365b1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="scr\BOX.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="scr\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders_P1\shader.v0.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P1\shader.v0.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P1\shader_allvariables.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P1\shader_allvariables.vert">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
