@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
 	
 	
-	//Se ajusta la cámara
+	//Se ajusta la cámara 
 	//Si no se da valor se cojen valores por defecto
 	//IGlib::setProjMat(const glm::mat4 &projMat);
 	//IGlib::setViewMat(const glm::mat4 &viewMat);
