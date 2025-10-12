@@ -141,6 +141,8 @@
   <ItemGroup>
     <None Include="..\shaders_P1\shader.v0.frag" />
     <None Include="..\shaders_P1\shader.v0.vert" />
+    <None Include="..\shaders_P1\shader.v1.frag" />
+    <None Include="..\shaders_P1\shader.v1.vert" />
     <None Include="..\shaders_P1\shader_allvariables.frag" />
     <None Include="..\shaders_P1\shader_allvariables.vert" />
   </ItemGroup>
