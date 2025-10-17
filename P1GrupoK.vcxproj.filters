@@ -7,34 +7,43 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{694eafb7-e37f-4281-a06e-e3b7938365b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{908d4064-6971-407e-8945-ea33c736dff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scr\BOX.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Camera.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="scr\Camera.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shaders_P1\shader.v0.frag">
+    <None Include="shaders\shader.v0.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders_P1\shader.v0.vert">
+    <None Include="shaders\shader.v0.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders_P1\shader_allvariables.frag">
+    <None Include="shaders\shader.v1.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders_P1\shader_allvariables.vert">
+    <None Include="shaders\shader.v1.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders_P1\shader.v1.frag">
+    <None Include="shaders\shader_allvariables.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders_P1\shader.v1.vert">
+    <None Include="shaders\shader_allvariables.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
