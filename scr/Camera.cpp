@@ -44,7 +44,7 @@ void Camera::refreshMatrixView() {
 //PARA REFRESCAR LA MATRIZ DE PROJ
 void Camera::refreshMatrixProj(float near, float far) {
 
-	glm::mat4 proj = glm::perspective(fov, (float)width / (float)height, near, far);
+	glm::mat4 proj = glm::perspective(fov, (float)Camera::width / (float)Camera::height, near, far);
 	IGlib::setProjMat(proj);
 }
 
