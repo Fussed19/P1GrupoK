@@ -1,4 +1,5 @@
 #include <vector>
+#include <cmath>
 
 #include "BOX.h"
 #include <IGL/IGlib.h>
@@ -116,15 +117,21 @@ void idleFunc()
 {
 	camera.refreshMatrixView();
 
-	static float angle = 0.0f;
-	static float velocity = 0.05f;
+	static float orbit = 0.0f;
+	static float rot = 0.0f;
 	float radius = 5.0f;
+	float doblePi = 2.0 * 3.14159265358979323846f;
 
-	angle = (angle < 3.141592f * 2.0f) ? angle + 0.5f : 0.0f;
-	glm::vec3 desplazamiento = glm::vec3(radius * cos(angle*velocity), 0.0f, radius * sin(angle*velocity));
-	glm::mat4 rotacion180 = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f) + 10 * glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	orbit += 0.002f;
+	if (orbit > doblePi) orbit -= doblePi;
 
-	transformarObj(objIds[0], moverObj(objIds[0], desplazamiento) * rotacion180 * escalarObj(objIds[0], 0.1f));
+	rot += 0.001f;
+	if (rot > doblePi) rot -= doblePi;
+
+	glm::vec3 desplazamiento = glm::vec3(radius * cos(orbit), 0.0f, radius * sin(orbit));
+	glm::mat4 rotacion = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	transformarObj(objIds[0], moverObj(objIds[0], desplazamiento) * rotacion * escalarObj(objIds[0], 0.1f));
 
 }
 
