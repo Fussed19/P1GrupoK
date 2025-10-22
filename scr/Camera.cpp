@@ -28,7 +28,26 @@ void Camera::defMatrix(float fov, float near, float far) {
 	glm::mat4 proj = glm::mat4(1.0f);
 
 	//Ajustamos view
-	view = glm::lookAt(c_pos, c_pos + c_forward, c_up);
+	glm::vec3 D, R, U;
+
+	D = glm::normalize(c_forward);
+	R = glm::normalize(glm::cross(D, c_up));
+	U = glm::normalize(glm::cross(R, D));
+
+	glm::mat4 rot = glm::mat4(
+		glm::vec4(R.x, U.x, -D.x, 0.0f),
+		glm::vec4(R.y, U.y, -D.y, 0.0f), 
+		glm::vec4(R.z, U.z, -D.z, 0.0f), 
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	glm::mat4 trans = glm::mat4(
+		glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		glm::vec4(-c_pos.x, -c_pos.y, -c_pos.z, 1.0f));
+	view = rot * trans;
+
+	//view = glm::lookAt(c_pos, c_pos + c_forward, c_up);
 	IGlib::setViewMat(view);
 
 	//ajustamos proj
@@ -38,7 +57,29 @@ void Camera::defMatrix(float fov, float near, float far) {
 //PARA REFRESCAR LA MATRIZ DE VISTA
 void Camera::refreshMatrixView() {
 
-	glm::mat4 view = glm::lookAt(c_pos, c_pos + c_forward, c_up);
+	glm::mat4 view = glm::mat4(1.0f);
+
+	//Ajustamos view
+	glm::vec3 D, R, U;
+
+	D = glm::normalize(c_forward);
+	R = glm::normalize(glm::cross(D, c_up));
+	U = glm::normalize(glm::cross(R, D));
+
+	glm::mat4 rot = glm::mat4(
+		glm::vec4(R.x, U.x, -D.x, 0.0f),
+		glm::vec4(R.y, U.y, -D.y, 0.0f),
+		glm::vec4(R.z, U.z, -D.z, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	glm::mat4 trans = glm::mat4(
+		glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		glm::vec4(-c_pos.x, -c_pos.y, -c_pos.z, 1.0f));
+	view = rot * trans;
+
+	//view = glm::lookAt(c_pos, c_pos + c_forward, c_up);
 	IGlib::setViewMat(view);
 }
 //PARA REFRESCAR LA MATRIZ DE PROJ

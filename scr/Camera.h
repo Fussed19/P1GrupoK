@@ -16,7 +16,7 @@ class Camera
 		int width;
 		int height;
 
-		float c_speed = 0.1f;
+		float c_speed = 0.5f;
 		float c_sensibility = 0.5f;
 
 		float fov = 60.0f;
