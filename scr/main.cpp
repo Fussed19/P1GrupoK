@@ -1,4 +1,4 @@
-#include <vector>
+ï»¿#include <vector>
 #include <cmath>
 
 #include "BOX.h"
@@ -15,7 +15,7 @@
 #include <assimp/postprocess.h>
 
 
-//Declaración de CB
+//DeclaraciÃ³n de CB
 void resizeFunc(int width, int height);
 void idleFunc();
 void keyboardFunc(unsigned char key, int x, int y);
@@ -29,9 +29,9 @@ const aiScene* sc;//escena con obejetos 3d cargadior en formato interno de assim
 //funcion propio craga de objetos
 bool cargaModelos3D(const std::string& pFile);
 
-glm::mat4 escalarObj(std::vector<int> localObjIds, float escala);
-glm::mat4 moverObj(std::vector<int> localObjIds, glm::vec3 xyz);
-glm::mat4 rotarObj(std::vector<int> localObjIds, glm::vec3 angles);
+glm::mat4 escalarObj(int objId, float escala);
+glm::mat4 moverObj(int objId, glm::vec3 xyz);
+glm::mat4 rotarObj(int objId, glm::vec3 angles);
 
 void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat);
 
@@ -39,11 +39,15 @@ void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat);
 int w_width = 600;
 int w_height = 600;
 
-float fov = glm::radians(60.0f);//60º
+float fov = glm::radians(60.0f);//60Âº
 float near = 0.1f;
 float far = 50.0f;
 
-//Definicion mouse
+//Definicion mouse y teclado
+bool rPressed = false;
+bool ePressed = false;
+bool tPressed = false;
+bool rightButtonPressed = false;
 bool centralButtonPressed = false;
 float lastX = (float)w_width / 2.0f;
 float lastY = (float)w_height / 2.0f;
@@ -53,14 +57,15 @@ Camera camera(w_width, w_height, glm::vec3(0.0f, 0.0f, 3.0f));
 
 //vector de IDs de objetos cargados
 std::vector<std::vector<int>> objIds;
-
+std::vector<glm::mat4> modelMatObjs;
+int objSelected = 0; //Para seleccionar objetos con el teclado del 0 al 9.
 
 int main(int argc, char** argv)
 {
 	std::locale::global(std::locale("spanish"));// acentos ;)
 	if (!IGlib::init("./shaders/shader.v1.vert", "./shaders/shader.v1.frag"))
 		return -1;
-
+	IGlib::setTimer(16);
 	//Camera init
 	camera.defMatrix(fov, near, far);
 
@@ -72,9 +77,12 @@ int main(int argc, char** argv)
 	
 	
 
-	transformarObj(objIds[1], moverObj(objIds[1], glm::vec3(0.0f, 0.0f, 0.0f)) * escalarObj(objIds[1], 0.1f));
 
-	transformarObj(objIds[0], moverObj(objIds[0], glm::vec3(-10.0f, 0.0f, 0.0f)) * escalarObj(objIds[0], 0.1f));
+	escalarObj(1, 0.1f);
+
+	moverObj(0, glm::vec3(-10.0f, 0.0f, 0.0f));
+	escalarObj(0, 0.1f);
+
 	
 
 	
@@ -86,7 +94,7 @@ int main(int argc, char** argv)
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	IGlib::setModelMat(objId, modelMat);
 	*/
-	//Incluir texturas aquí.
+	//Incluir texturas aquÃ­.
 
 
 	//CBs
@@ -113,6 +121,7 @@ void resizeFunc(int width, int height)
 	camera.refreshMatrixProj(near, far);
 }
 
+
 void idleFunc()
 {
 	camera.refreshMatrixView();
@@ -129,30 +138,50 @@ void idleFunc()
 	if (rot > doblePi) rot -= doblePi;
 
 	glm::vec3 desplazamiento = glm::vec3(radius * cos(orbit), 0.0f, radius * sin(orbit));
-	glm::mat4 rotacion = glm::rotate(glm::mat4(1.0f), rot, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	transformarObj(objIds[0], moverObj(objIds[0], desplazamiento) * rotacion * escalarObj(objIds[0], 0.1f));
+	moverObjTo(0, desplazamiento);
+	rotarObj(0, )
 
 }
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
+	if (key >= '0' && key <= '9') {
+		int sel = key - '0';
+		if (sel < objIds.size()) {
+			objSelected = sel;
+			std::cout << "objSelected = " << objSelected << std::endl;
+		}
+		else {
+			std::cout << "Objeto " << sel << " no existe" << std::endl;
+		}
+	}
+	if (key == 'r' || key == 'R') {
+		rPressed = !rPressed;
+		std::cout << "Modo rotar: " << (rPressed ? "ON" : "OFF") << std::endl;
+	}
+	if (key == 'e' || key == 'E') {
+		ePressed = !ePressed;
+		std::cout << "Modo escalar: " << (ePressed ? "ON" : "OFF") << std::endl;
+	}
+	if (key == 't' || key == 'T') {
+		tPressed = !tPressed;
+		std::cout << "Modo mover: " << (tPressed ? "ON" : "OFF") << std::endl;
+	}
+	camera.keyInput(key);
+
 	camera.keyInput(key);
 }
 
 void mouseFunc(int button, int state, int x, int y)
 {
-	if (state == 0) {
-		if (button == 1) centralButtonPressed = true;
+	bool pressed = (state == 0); 
 
+	if (button == 1) centralButtonPressed = pressed; // central
+	if (button == 2) rightButtonPressed = pressed;   // derecho
+
+	if (pressed) {
 		lastX = (float)x;
 		lastY = (float)y;
-
-		//std::cout << "Se ha pulsado el boton derecho del raton" << std::endl;
-	}
-	else {
-		if (button == 1) centralButtonPressed = false;
-		//std::cout << "Se ha soltado el boton derecho del raton" << std::endl;
 	}
 }
 
@@ -160,18 +189,37 @@ void mouseFunc(int button, int state, int x, int y)
 void mouseMoveFunc(int x, int y)
 {
 
+	float dX = (float)(x - lastX);
+	float dY = (float)(y - lastY);
+
+	lastX = (float)x;
+	lastY = (float)y;
+
 	if (centralButtonPressed) {
-
-		//std::cout << "Se ha pulsado el boton derecho del raton y se esta moveindo" << std::endl;
-
-		float dX = (float)(x - lastX);
-		float dY = (float)(y - lastY);
-
-		lastX = (float)x;
-		lastY = (float)y;
-
 		camera.rotForward(dX, -dY);
+	}
+
+	if (rightButtonPressed && rPressed) {
+		//std::cout << "ROTANDO " << std::endl;
+		//similar al giro de camara con mouse
+		float rx = glm::radians(dY); 
+		float ry = glm::radians(dX); 
+		rotarObj(objSelected, glm::vec3(3.0f*rx, 3.0f*ry, 0.0f));
+	}
+	else if (rightButtonPressed && ePressed) {
+		//std::cout << "ESCALANDO " << std::endl;
 		
+		float delta = -dY * 0.02f; 
+		// clamp para evitar escalados negativos / enormes
+		float factor = 1.0f + delta;
+		if (factor < 0.01f) factor = 0.01f;
+		escalarObj(objSelected, factor);
+	}
+	else if (rightButtonPressed && tPressed) {
+		//std::cout << "TRANSLADANDO " << std::endl;
+
+		glm::vec3 deltaPos = glm::vec3(dX * 0.5f, 0.0f , dY * 0.5f);
+		moverObj(objSelected, deltaPos);
 	}
 
 
@@ -179,22 +227,26 @@ void mouseMoveFunc(int x, int y)
 
 void mousePassMoveFunc(int x, int y)
 {
-	//std::cout << "Pasivo en la posición " << x << " " << y << std::endl << std::endl;
+	//std::cout << "Pasivo en la posiciÃ³n " << x << " " << y << std::endl << std::endl;
 }
 void mouseWheelFunc(int wheel, int dir, int x, int y)
 {
 	float zoomVel = glm::radians(2.0f);
 
 	if (dir > 0) {
-		camera.zoom(-zoomVel);
+		if(rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, -glm::radians(40.0f)));
+		else if(tPressed) moverObj(objSelected, glm::vec3(0.0f, 1.0f ,0.0f));
+		else camera.zoom(-zoomVel);
 	}
 	else {
-		camera.zoom(zoomVel);
+		if (rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, glm::radians(40.0f)));
+		else if (tPressed) moverObj(objSelected, glm::vec3(0.0f, -1.0f, 0.0f));
+		else camera.zoom(zoomVel);
 	}
 
 	camera.refreshMatrixProj(near, far);
 
-	//std::cout << "en la posición " << x << " " << y << std::endl << std::endl;
+	//std::cout << "en la posiciÃ³n " << x << " " << y << std::endl << std::endl;
 }
 
 bool cargaModelos3D(const std::string& pFile)
@@ -208,7 +260,6 @@ bool cargaModelos3D(const std::string& pFile)
 		aiProcess_SortByPType);
 
 	if (!sc) {
-		//DoTheErrorLogging(importer.GetErrorString());
 		return false;
 	}
 	std::cout << "Se han cargado " << sc->mNumMeshes << " meshes"
@@ -297,6 +348,7 @@ bool cargaModelos3D(const std::string& pFile)
 		localObjIds.push_back(id);
 
 		glm::mat4 modelMat = glm::mat4(1.0f);
+		
 		IGlib::setModelMat(localObjIds.back(), modelMat);
 
 		free(faceArray);
@@ -304,35 +356,67 @@ bool cargaModelos3D(const std::string& pFile)
 		free(normalArray);
 		free(textCoordsArray);
 	}
+	glm::mat4 modelMat = glm::mat4(1.0f);
 	objIds.push_back(localObjIds);
+	modelMatObjs.push_back(modelMat);
+
 	return true;
 }
 
+glm::mat4 escalarObj(int objId, float escala) {
+	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
 
-glm::mat4 escalarObj(std::vector<int> localObjIds, float escala) {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::scale(modelMat, glm::vec3(escala, escala, escala));
-	return modelMat;
+	modelMatObjs[objId] = modelMatObjs[objId] * modelMat;
+
+	transformarObj(objIds[objId], modelMatObjs[objId]);
+
+	return modelMatObjs[objId];
 }
 
-glm::mat4 moverObj(std::vector<int> localObjIds, glm::vec3 xyz) {
+glm::mat4 moverObj(int objId, glm::vec3 xyz) {
+	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
+
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, xyz);
-	return modelMat;
+	modelMatObjs[objId] = modelMatObjs[objId] * modelMat;
+
+	transformarObj(objIds[objId], modelMatObjs[objId]);
+
+	return modelMatObjs[objId];
+}
+glm::mat4 moverObjTo(int objId, glm::vec3 xyz) {
+	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
+
+	glm::mat4 modelMat = glm::mat4(1.0f);
+	modelMat = glm::translate(modelMat, xyz);
+	modelMatObjs[objId] = modelMat;
+
+	transformarObj(objIds[objId], modelMatObjs[objId]);
+
+	return modelMatObjs[objId];
 }
 
-glm::mat4 rotarObj(std::vector<int> localObjIds, glm::vec3 angles) {
+glm::mat4 rotarObj(int objId, glm::vec3 angles) {
+	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
+
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::rotate(modelMat, glm::radians(angles.x), glm::vec3(1, 0, 0));
 	modelMat = glm::rotate(modelMat, glm::radians(angles.y), glm::vec3(0, 1, 0));
 	modelMat = glm::rotate(modelMat, glm::radians(angles.z), glm::vec3(0, 0, 1));
-	return modelMat;
+
+	modelMatObjs[objId] = modelMatObjs[objId] * modelMat;
+
+	transformarObj(objIds[objId], modelMatObjs[objId]);
+
+	return modelMatObjs[objId];
 
 }
 
 void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat) {
 
 	for (int i = 0; i < localObjIds.size(); i++) {
-			IGlib::setModelMat(localObjIds[i], modelMat);
+		IGlib::setModelMat(localObjIds[i],modelMat);
 	}
 }
