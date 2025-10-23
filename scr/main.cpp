@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 	if (!IGlib::init("./shaders/shader.v9.vert", "./shaders/shader.v9SS.frag"))
 		return -1;
 
-	IGlib::setTimer(16);
+	//IGlib::setTimer(16);
 
 	//Camera init
 	camera.defMatrix(fov, near, far);
