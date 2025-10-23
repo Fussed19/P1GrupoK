@@ -1,5 +1,5 @@
 #include "Camera.h"
-
+//Constructor
 Camera::Camera(int width, int height, glm::vec3 pos) {
 	Camera::width = width;
 	Camera::height = height;
@@ -47,16 +47,16 @@ void Camera::defMatrix(float fov, float near, float far) {
 		glm::vec4(-c_pos.x, -c_pos.y, -c_pos.z, 1.0f));
 	view = rot * trans;
 
-	//view = glm::lookAt(c_pos, c_pos + c_forward, c_up);
+	//view = glm::lookAt(c_pos, c_pos + c_forward, c_up); //Otra forma de definirlo
 	IGlib::setViewMat(view);
 
 	//ajustamos proj
-	proj = glm::perspective(fov, (float)width / (float)height, near, far);
+	proj = glm::perspective(fov, (float)width / (float)height, near, far); //Creamos la proyeccion en perspectiva
 	IGlib::setProjMat(proj);
 }
 //PARA REFRESCAR LA MATRIZ DE VISTA
 void Camera::refreshMatrixView() {
-
+	//Igual que en el init
 	glm::mat4 view = glm::mat4(1.0f);
 
 	//Ajustamos view
@@ -108,7 +108,7 @@ void Camera::rotForward(float dX, float dY) {
 	float ryaw = glm::radians(c_yaw);
 	float rpitch = glm::radians(c_pitch);
 
-	//Esto es una rotación de euler en Rx y Ry ya multiplicada para ahorrar calculos al pc. (forward * Rx * Ry)
+	//Esto es una rotaciï¿½n de euler en Rx y Ry ya multiplicada para ahorrar calculos al pc. (forward * Rx * Ry)
 	newForward.x = cos(ryaw) * cos(rpitch);
 	newForward.y = sin(rpitch);
 	newForward.z = sin(ryaw) * cos(rpitch);
@@ -143,7 +143,8 @@ void Camera::keyInput(unsigned char key) {
 //ZOOM 
 void Camera::zoom(float d) {
 	fov += d;
-
+	//aumentamos o bajamos el fov segun el input del scroll
+	//Valor minimo es 25 y maximo 90.
 	if (fov < glm::radians(25.0f)) fov = glm::radians(25.0f);
 	if (fov > glm::radians(90.0f)) fov = glm::radians(90.0f);
 }

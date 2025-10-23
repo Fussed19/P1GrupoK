@@ -17,7 +17,7 @@
 #include <assimp/postprocess.h>
 
 
-//Declaración de CB
+//Declaraciï¿½n de CB
 void resizeFunc(int width, int height);
 void idleFunc();
 void keyboardFunc(unsigned char key, int x, int y);
@@ -30,18 +30,18 @@ void mouseWheelFunc(int wheel, int dir, int x, int y);
 const aiScene* sc;//escena con obejetos 3d cargadior en formato interno de assimp
 //funcion propio craga de objetos
 bool cargaModelos3D(const std::string& pFile);
-
+//def metodos para transformaciones de objetos
 glm::mat4 escalarObj(int objId, float escala);
 glm::mat4 moverObj(int objId, glm::vec3 xyz);
 glm::mat4 rotarObj(int objId, glm::vec3 angles);
 
-void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat);
+void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat); //aplica transformaciones en todas las meshes de un objeto
 
 //Def parametros de la proyeccion
 int w_width = 600;
 int w_height = 600;
 
-float fov = glm::radians(60.0f);//60º
+float fov = glm::radians(60.0f);//60ï¿½
 float near = 0.1f;
 float far = 50.0f;
 
@@ -55,14 +55,14 @@ float lastX = (float)w_width / 2.0f;
 float lastY = (float)w_height / 2.0f;
 
 //Creacion de la camara
-Camera camera(w_width, w_height, glm::vec3(0.0f, 0.0f, 10.0f));
+Camera camera(w_width, w_height, glm::vec3(0.0f, 0.0f, 10.0f)); //vec3 es la pos inicial de la camara
 
 //vector de IDs de objetos cargados
-std::vector<std::vector<int>> objIds;
-std::vector<glm::mat4> modelMatObjs;
+std::vector<std::vector<int>> objIds; //guarda vectores que contienen los ids de todas las meshes cargadas por objeto
+std::vector<glm::mat4> modelMatObjs; //guarda las modelmat por objetos
 int objSelected = 0; //Para seleccionar objetos con el teclado del 0 al 9.
 
-//Clase órbita
+//Clase ï¿½rbita
 struct Orbit {
 	int objId;
 	bool state;
@@ -90,8 +90,9 @@ struct Orbit {
 		}
 		perpAxis = radius * glm::normalize(glm::cross(axis, aux)); //Sacamos un vector perpendicular al axis
 		pos = perpAxis; //Pos inicial
-		angle += vel * radius;
+		angle += vel * radius;//act angulo
 	}
+	//Setters
 	void setState(bool newState) {
 		state = newState;
 	}
@@ -112,6 +113,7 @@ struct Orbit {
 
 		pos = perpAxis;
 	}
+	//METODO UPDATE PARA ACTUALIZAR LAS ORBITAS POR FRAME
 	void update() {
 		glm::vec3 newPos = glm::rotate(perpAxis, angle, axis); //rotamos el vector perpendicular al axis para obtener la nueva posicion
 		moverObj(objId,  newPos - pos); //pos - newPos es el vector de la nueva coordenada de posicion menos la anterior, resulta en un vector de movimiento entre posiciones
@@ -120,14 +122,16 @@ struct Orbit {
 	}
 };
 
-std::map<int, Orbit> orbits; //Mapa que almacena los datos de las órbitas de los objetos
+std::map<int, Orbit> orbits; //Mapa que almacena los datos de las ï¿½rbitas de los objetos (con un vector tendria que meter una orbita por objeto en memoria)
 
 int main(int argc, char** argv)
 {
 	std::locale::global(std::locale("spanish"));// acentos ;)
 	if (!IGlib::init("./shaders/shader.v1.vert", "./shaders/shader.v1.frag"))
 		return -1;
+
 	IGlib::setTimer(16);
+
 	//Camera init
 	camera.defMatrix(fov, near, far);
 
@@ -136,15 +140,13 @@ int main(int argc, char** argv)
 	cargaModelos3D("../3D_assets/Hat/SteamPunkTopHat.obj");
 	cargaModelos3D("../3D_assets/CelticTombstone/Celtic_Cross_Tombstone.obj");
 
+	//Tranformaciones de objetos
 	escalarObj(1, 0.01f);
 
 	moverObj(0, glm::vec3(0.0f, 5.0f, 0.0f));
 	escalarObj(0, 0.1f);
 
-
-
-
-
+	//CUBO
 	/*
 	objId = IGlib::createObj(cubeNTriangleIndex, cubeNVertex, cubeTriangleIndex,
 		cubeVertexPos, cubeVertexColor, cubeVertexNormal, cubeVertexTexCoord, cubeVertexTangent);
@@ -152,7 +154,7 @@ int main(int argc, char** argv)
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	IGlib::setModelMat(objId, modelMat);
 	*/
-	//Incluir texturas aquí.
+	//Incluir texturas aquï¿½.
 
 
 	//CBs
@@ -170,7 +172,7 @@ int main(int argc, char** argv)
 	IGlib::destroy();
 	return 0;
 }
-
+//Rescalado para mantener lso tamaÃ±os
 void resizeFunc(int width, int height)
 {
 	camera.setHeight(height);
@@ -179,7 +181,7 @@ void resizeFunc(int width, int height)
 	camera.refreshMatrixProj(near, far);
 }
 
-
+//Idle, refresca la view y orbitas
 void idleFunc()
 {
 	camera.refreshMatrixView();
@@ -192,9 +194,10 @@ void idleFunc()
 	}
 
 }
-
+//Inputs teclado
 void keyboardFunc(unsigned char key, int x, int y)
 {
+	//SELECCIN OBJETOS
 	if (key >= '0' && key <= '9') {
 		unsigned int sel = key - '0';
 		if (sel < objIds.size()) {
@@ -205,21 +208,26 @@ void keyboardFunc(unsigned char key, int x, int y)
 			std::cout << "Objeto " << sel << " no existe" << std::endl;
 		}
 	}
+	//ROTAR
 	if (key == 'r' || key == 'R') {
 		rPressed = !rPressed;
 		std::cout << "Modo rotar: " << (rPressed ? "ON" : "OFF") << std::endl;
 	}
+	//ESCALAR
 	if (key == 'e' || key == 'E') {
 		ePressed = !ePressed;
 		std::cout << "Modo escalar: " << (ePressed ? "ON" : "OFF") << std::endl;
 	}
+	//TRANSLADAR O MOVER
 	if (key == 't' || key == 'T') {
 		tPressed = !tPressed;
 		std::cout << "Modo mover: " << (tPressed ? "ON" : "OFF") << std::endl;
 	}
+	//CREAR UN OBJETO PREDEFINIDO
 	if (key == 'l' || key == 'L') {
 		cargaModelos3D("../3D_assets/Hat/SteamPunkTopHat.obj");
 	}
+	//PONER EL OBJETO SELECIONADO EN ORBITA
 	if (key == 'o' || key == 'O') {
 		if (orbits.find(objSelected) == orbits.end()) {
 			orbits[objSelected] = Orbit(objSelected, true, 50.0f, glm::vec3(0, 1, 0), 0.05f, 0.01f);
@@ -228,10 +236,11 @@ void keyboardFunc(unsigned char key, int x, int y)
 			orbits[objSelected].setState(!orbits[objSelected].state);
 		}
 	}
+	//INPUTS DE TECLADO DE LA CAMARA
 	camera.keyInput(key);
 
 }
-
+//ACTUALIZACION DE CLICKS DE RATON
 void mouseFunc(int button, int state, int x, int y)
 {
 	bool pressed = (state == 0);
@@ -240,6 +249,7 @@ void mouseFunc(int button, int state, int x, int y)
 	if (button == 2) rightButtonPressed = pressed;   // derecho
 
 	if (pressed) {
+		//guardamos los ultimos valores de x e y para mas adelante
 		lastX = (float)x;
 		lastY = (float)y;
 	}
@@ -248,24 +258,24 @@ void mouseFunc(int button, int state, int x, int y)
 
 void mouseMoveFunc(int x, int y)
 {
-
+	//calculamos deltas para movimiento de la camara y transformaciones de objetos
 	float dX = (float)(x - lastX);
 	float dY = (float)(y - lastY);
 
 	lastX = (float)x;
 	lastY = (float)y;
-
+	//ROtacion de la camara boton centras
 	if (centralButtonPressed) {
 		camera.rotForward(dX, -dY);
 	}
-
+	//ROTAR
 	if (rightButtonPressed && rPressed) {
 		//std::cout << "ROTANDO " << std::endl;
 		//similar al giro de camara con mouse
 		float rx = glm::radians(dY);
 		float ry = glm::radians(dX);
 		rotarObj(objSelected, glm::vec3(3.0f * rx, 3.0f * ry, 0.0f));
-	}
+	} //ESCALAR
 	else if (rightButtonPressed && ePressed) {
 		//std::cout << "ESCALANDO " << std::endl;
 
@@ -274,7 +284,7 @@ void mouseMoveFunc(int x, int y)
 		float factor = 1.0f + delta;
 		if (factor < 0.01f) factor = 0.01f;
 		escalarObj(objSelected, factor);
-	}
+	} // TRANSLADAR
 	else if (rightButtonPressed && tPressed) {
 		//std::cout << "TRANSLADANDO " << std::endl;
 
@@ -287,32 +297,33 @@ void mouseMoveFunc(int x, int y)
 
 void mousePassMoveFunc(int x, int y)
 {
-	//std::cout << "Pasivo en la posición " << x << " " << y << std::endl << std::endl;
+	
 }
+//DETECION DEL SCROLL
 void mouseWheelFunc(int wheel, int dir, int x, int y)
 {
+	//Velocidad del zoom
 	float zoomVel = glm::radians(2.0f);
-
+	//Si se mueve en positivo
 	if (dir > 0) {
-		if (rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, -glm::radians(40.0f)));
-		else if (tPressed) moverObj(objSelected, glm::vec3(0.0f, 1.0f, 0.0f));
-		else camera.zoom(-zoomVel);
+		if (rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, -glm::radians(40.0f))); //Rotar en z
+		else if (tPressed) moverObj(objSelected, glm::vec3(0.0f, 1.0f, 0.0f)); //Transladar en y
+		else camera.zoom(-zoomVel); //zoom
 	}
 	else {
-		if (rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, glm::radians(40.0f)));
-		else if (tPressed) moverObj(objSelected, glm::vec3(0.0f, -1.0f, 0.0f));
-		else camera.zoom(zoomVel);
+		if (rPressed) rotarObj(objSelected, glm::vec3(0.0f, 0.0f, glm::radians(40.0f)));//Rotar en z
+		else if (tPressed) moverObj(objSelected, glm::vec3(0.0f, -1.0f, 0.0f));//Transladar en y
+		else camera.zoom(zoomVel);//zoom
 	}
-
+	//refrescamos la proyeccion en caso de zoom para aplicar el fov
 	camera.refreshMatrixProj(near, far);
 
-	//std::cout << "en la posición " << x << " " << y << std::endl << std::endl;
 }
-
+//CARGA DE MODELOS EN 3D
 bool cargaModelos3D(const std::string& pFile)
 {
 	if(objIds.size() >= 10) {
-		std::cout << "Límite de 10 objetos alcanzado, no se puede cargar más." << std::endl;
+		std::cout << "Lï¿½mite de 10 objetos alcanzado, no se puede cargar mï¿½s." << std::endl;
 		return false;
 	}
 
@@ -330,7 +341,7 @@ bool cargaModelos3D(const std::string& pFile)
 		<< std::endl;
 
 	//bucle de craga de meshes
-	std::vector<int> localObjIds;
+	std::vector<int> localObjIds; //Este vector almacenara los ids de todas als meshes de un objeto
 
 	for (unsigned int n = 0; n < sc->mNumMeshes; ++n) {
 
@@ -415,18 +426,20 @@ bool cargaModelos3D(const std::string& pFile)
 
 		IGlib::setModelMat(localObjIds.back(), modelMat);
 
+		//liberamos
 		free(faceArray);
 		free(vertexArray);
 		free(normalArray);
 		free(textCoordsArray);
 	}
+	//Guardamos las modelMat y los ids
 	glm::mat4 modelMat = glm::mat4(1.0f);
-	objIds.push_back(localObjIds);
-	modelMatObjs.push_back(modelMat);
+	objIds.push_back(localObjIds); //guardamos el vector del objeto en el vector de objetos global
+	modelMatObjs.push_back(modelMat);//asignamos una modelMat global para este objeto
 
 	return true;
 }
-
+//ESCALADO
 glm::mat4 escalarObj(int objId, float escala) {
 	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
 
@@ -438,7 +451,7 @@ glm::mat4 escalarObj(int objId, float escala) {
 
 	return modelMatObjs[objId];
 }
-
+//TRANSLACION
 glm::mat4 moverObj(int objId, glm::vec3 xyz) {
 	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
 
@@ -450,7 +463,7 @@ glm::mat4 moverObj(int objId, glm::vec3 xyz) {
 
 	return modelMatObjs[objId];
 }
-
+//ROTACION
 glm::mat4 rotarObj(int objId, glm::vec3 angles) {
 	if (objId < 0 || objId >= modelMatObjs.size()) return glm::mat4(1.0f);
 
@@ -466,7 +479,7 @@ glm::mat4 rotarObj(int objId, glm::vec3 angles) {
 	return modelMatObjs[objId];
 
 }
-
+//APLICACION DE UNA TRANSFORMACION CON LAS ANTERIORES
 void transformarObj(std::vector<int> localObjIds, glm::mat4 modelMat) {
 
 	for (int i = 0; i < localObjIds.size(); i++) {
