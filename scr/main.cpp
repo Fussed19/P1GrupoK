@@ -127,7 +127,7 @@ std::map<int, Orbit> orbits; //Mapa que almacena los datos de las �rbitas de l
 int main(int argc, char** argv)
 {
 	std::locale::global(std::locale("spanish"));// acentos ;)
-	if (!IGlib::init("./shaders/shader.v9.vert", "./shaders/shader.v9.frag"))
+	if (!IGlib::init("./shaders/shader.v9.vert", "./shaders/shader.v9SS.frag"))
 		return -1;
 
 	IGlib::setTimer(16);
